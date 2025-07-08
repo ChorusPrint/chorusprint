@@ -105,6 +105,17 @@
       }
     }
   </style>
+  <!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- DOCX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.umd.min.js"></script>
+
+<!-- XLSX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ZIP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
   <header>
@@ -260,7 +271,33 @@
       const blob = new Blob([csv], { type: 'text/csv' });
       downloadBlob(blob, `${filename}_gear.csv`);
     } else if (type === 'pdf') {
-      alert("PDF export coming soon — placeholder only.");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(14);
+  doc.text(`ChorusPrint Session`, 10, 10);
+  doc.setFontSize(11);
+  doc.text(`Role: ${sessionData.role}`, 10, 20);
+  doc.text(`Phase: ${sessionData.phase}`, 10, 28);
+
+  doc.text(`\nGear List:`, 10, 40);
+  sessionData.gear.forEach((g, i) => {
+    doc.text(`- ${g.item} (x${g.qty}) — ${g.notes}`, 10, 48 + i * 8);
+  });
+
+  const notesStart = 60 + sessionData.gear.length * 8;
+  doc.text(`\nNotes:\n${sessionData.notes}`, 10, notesStart);
+
+  const checklistStart = notesStart + 20;
+  doc.text(`\nChecklist:`, 10, checklistStart);
+  sessionData.checklist.forEach((c, i) => {
+    const status = c.checked ? "[x]" : "[ ]";
+    doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
+  });
+
+  doc.save(`chorusprint_${sessionData.role}_${sessionData.phase}.pdf`);
+}
+
     } else if (type === 'docx') {
       alert("Word export coming soon — placeholder only.");
     } else if (type === 'xlsx') {
