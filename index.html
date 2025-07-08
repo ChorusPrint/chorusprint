@@ -64,9 +64,18 @@
       display: flex;
       gap: 0.5rem;
       margin-top: 0.5rem;
+      align-items: center;
     }
     .gear-row input {
       flex: 1;
+    }
+    .gear-row button.delete-gear {
+      background: #cc0000;
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
     }
     .checklist {
       margin-top: 1rem;
@@ -130,7 +139,7 @@
   </header>
 
   <label for="role">Role:</label>
-  <select id="role">
+  <select id="role" onchange="toggleOther(this, 'role-other')">
     <option>FOH Engineer</option>
     <option>Monitor Engineer</option>
     <option>Systems Tech</option>
@@ -140,23 +149,26 @@
     <option>Playback</option>
     <option>Other</option>
   </select>
+  <input type="text" id="role-other" placeholder="Enter custom role" style="display:none; margin-top: 0.5rem;" />
 
   <label for="phase">Phase:</label>
-  <select id="phase">
+  <select id="phase" onchange="toggleOther(this, 'phase-other')">
     <option>Load In</option>
     <option>Soundcheck</option>
     <option>Show Day</option>
     <option>Strike</option>
+    <option>Load Out</option>
     <option>Rehearsal</option>
     <option>Other</option>
   </select>
-
+  <input type="text" id="phase-other" placeholder="Enter custom phase" style="display:none; margin-top: 0.5rem;" />
   <label>Gear List:</label>
   <div id="gear-list">
     <div class="gear-row">
       <input type="text" placeholder="Item" class="gear-item" />
       <input type="number" placeholder="Qty" class="gear-qty" />
       <input type="text" placeholder="Notes" class="gear-notes" />
+      <button class="delete-gear" onclick="this.parentElement.remove()">❌</button>
     </div>
   </div>
   <button id="add-gear">➕ Add Gear</button>
@@ -195,6 +207,11 @@
       body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
 
+    function toggleOther(selectEl, inputId) {
+      const input = document.getElementById(inputId);
+      input.style.display = selectEl.value === 'Other' ? 'block' : 'none';
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       const gearList = document.getElementById('gear-list');
       const addGearBtn = document.getElementById('add-gear');
@@ -206,13 +223,22 @@
           <input type="text" placeholder="Item" class="gear-item" />
           <input type="number" placeholder="Qty" class="gear-qty" />
           <input type="text" placeholder="Notes" class="gear-notes" />
+          <button class="delete-gear" onclick="this.parentElement.remove()">❌</button>
         `;
         gearList.appendChild(row);
       });
 
       function collectSessionData() {
-        const role = document.getElementById('role').value;
-        const phase = document.getElementById('phase').value;
+        const roleSelect = document.getElementById('role');
+        const role = roleSelect.value === 'Other'
+          ? document.getElementById('role-other').value
+          : roleSelect.value;
+
+        const phaseSelect = document.getElementById('phase');
+        const phase = phaseSelect.value === 'Other'
+          ? document.getElementById('phase-other').value
+          : phaseSelect.value;
+
         const notes = document.getElementById('notes').value;
 
         const gear = Array.from(document.querySelectorAll('.gear-row')).map(row => ({
