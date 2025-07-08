@@ -2,384 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ChorusPrint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChorusPrint Export Test</title>
+
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
-    :root {
-      --bg: #121212;
-      --panel: #1e1e1e;
-      --text: #e0e0e0;
-      --accent: #0072CE;
-      --border: #333;
-      --font: 'Segoe UI', system-ui, sans-serif;
-    }
     body {
-      margin: 0;
-      font-family: var(--font);
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+      font-family: sans-serif;
+      padding: 2rem;
     }
-    header {
-      background: var(--panel);
-      padding: 1em;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.5em;
-    }
-    .container {
-      max-width: 960px;
-      margin: auto;
-      padding: 1em;
-    }
-    .section {
-      background: var(--panel);
-      padding: 1em;
-      margin-bottom: 1em;
-      border-radius: 8px;
-      box-shadow: 0 0 4px rgba(0,0,0,0.3);
-    }
-    .section h2 {
-      margin-top: 0;
-      font-size: 1.2em;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.5em;
-    }
-    label, input, select, textarea, button {
-      display: block;
+    textarea {
       width: 100%;
-      margin-bottom: 0.75em;
-      font-size: 1em;
-    }
-    input, select, textarea {
-      background: #222;
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 0.5em;
+      height: 100px;
     }
     button {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.75em;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    .footer {
-      margin-top: 4em;
-      padding: 2em 1em;
-      background: linear-gradient(to right, #0f0f0f, #1a1a1a);
-      color: #ccc;
-      font-size: 0.9em;
-      text-align: center;
-      border-top: 1px solid #333;
-    }
-    .footer a {
-      display: inline-block;
-      margin-top: 0.5em;
-      padding: 10px 18px;
-      background-color: var(--accent);
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-    .footer a:hover {
-      background-color: #005fa3;
-    }
-    @media (max-width: 600px) {
-      .section {
-        padding: 0.75em;
-      }
-      button {
-        font-size: 0.95em;
-      }
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🎚 ChorusPrint</h1>
-    <p>Modular, offline-first toolkit for live production crews</p>
-  </header>
-  <div class="container">
-    <div class="section">
-      <h2>🧭 Start a Session</h2>
-      <label for="role">Select Your Role:</label>
-      <select id="role">
-        <option value="">-- Choose Role --</option>
-        <option>FOH Engineer</option>
-        <option>Monitor Engineer</option>
-        <option>Playback Tech</option>
-        <option>Instrument Tech</option>
-        <option>Lighting Tech</option>
-        <option>Tour Manager</option>
-        <option>Generic Crew</option>
-      </select>
 
-      <label for="phase">Select Session Phase:</label>
-      <select id="phase">
-        <option value="">-- Choose Phase --</option>
-        <option>Pre-Rehearsal</option>
-        <option>Rehearsal</option>
-        <option>Pre-Tour</option>
-        <option>Load-In</option>
-        <option>Show Day</option>
-        <option>Load-Out</option>
-        <option>Post-Show</option>
-        <option>Post-Tour</option>
-      </select>
+  <h1>ChorusPrint Export Test</h1>
 
-      <button onclick="startSession()">Start Session</button>
-    </div>
+  <label>Role:
+    <input type="text" id="role" value="FOH Engineer" />
+  </label><br><br>
 
-    <div id="sessionUI" style="display:none;">
-      <!-- Dynamic UI will be injected here -->
-    </div>
-      <div class="section">
-        <h2>🧰 Equipment List</h2>
-        <div id="gearList"></div>
-        <button onclick="addGearItem()">➕ Add Item</button>
-      </div>
+  <label>Phase:
+    <input type="text" id="phase" value="Show Day" />
+  </label><br><br>
 
-      <div class="section">
-        <h2>📝 Notes</h2>
-        <textarea id="notes" rows="6" placeholder="Enter session notes, issues, or observations..."></textarea>
-      </div>
+  <label>Notes:</label><br>
+  <textarea id="notes">Check console, verify patch, run playback.</textarea><br>
 
-      <div class="section">
-        <h2>✅ Checklist</h2>
-        <div id="checklist">
-          <label><input type="checkbox"> Power distro verified</label>
-          <label><input type="checkbox"> Console booted and patched</label>
-          <label><input type="checkbox"> RF scan complete</label>
-          <label><input type="checkbox"> Playback rig tested</label>
-          <label><input type="checkbox"> Artist mixes confirmed</label>
-        </div>
-      </div>
+  <button onclick="exportAs('pdf')">📄 Export PDF</button>
 
-      <div class="section">
-        <h2>📤 Export Session</h2>
-        <button onclick="exportAs('pdf')">📄 Export PDF</button>
-        <button onclick="exportAs('docx')">📝 Export Word</button>
-        <button onclick="exportAs('xlsx')">📊 Export Excel</button>
-        <button onclick="exportAs('csv')">📁 Export CSV</button>
-        <button onclick="exportAs('json')">🧠 Export JSON</button>
-        <button onclick="exportAs('zip')">🗂 Export ZIP</button>
-      </div>
-
-      <div class="section">
-        <h2>📥 Load Previous Session</h2>
-        <input type="file" id="importFile" accept=".json" onchange="importSession(this.files[0])">
-      </div>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <div style="margin-bottom: 0.75em; font-weight: 600; color: #eee;">
-      © 2025 Chorus Inc. All rights reserved.
-    </div>
-    <div style="margin-bottom: 1em; color: #aaa;">
-      Built for live production crews — offline-first, modular, and role-aware.
-    </div>
-    <a href="mailto:feedback@chorusprint.io?subject=Feedback on ChorusPrint">
-      💬 Send Feedback
-    </a>
-  </footer>
-<script>
-  let sessionData = {
-    role: '',
-    phase: '',
-    gear: [],
-    notes: '',
-    checklist: []
-  };
-
-  function startSession() {
-    const role = document.getElementById('role').value;
-    const phase = document.getElementById('phase').value;
-    if (!role || !phase) return alert("Please select both role and phase.");
-    sessionData.role = role;
-    sessionData.phase = phase;
-    document.getElementById('sessionUI').style.display = 'block';
-    renderGearList();
-  }
-
-  function addGearItem() {
-    sessionData.gear.push({ item: '', qty: 1, notes: '' });
-    renderGearList();
-  }
-
-  function renderGearList() {
-    const container = document.getElementById('gearList');
-    container.innerHTML = '';
-    sessionData.gear.forEach((gear, index) => {
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = `
-        <input placeholder="Item" value="${gear.item}" onchange="updateGear(${index}, 'item', this.value)">
-        <input type="number" min="1" value="${gear.qty}" onchange="updateGear(${index}, 'qty', this.value)">
-        <input placeholder="Notes" value="${gear.notes}" onchange="updateGear(${index}, 'notes', this.value)">
-        <button onclick="removeGear(${index})">🗑 Remove</button>
-      `;
-      container.appendChild(wrapper);
-    });
-  }
-
-  function updateGear(index, field, value) {
-    sessionData.gear[index][field] = value;
-  }
-
-  function removeGear(index) {
-    sessionData.gear.splice(index, 1);
-    renderGearList();
-  }
-
-  function exportAs(type) {
-    sessionData.notes = document.getElementById('notes').value;
-    sessionData.checklist = Array.from(document.querySelectorAll('#checklist input')).map(c => ({
-      label: c.parentElement.textContent.trim(),
-      checked: c.checked
-    }));
-
-    const filename = `chorusprint_${sessionData.role.replace(/\s+/g, '_')}_${sessionData.phase.replace(/\s+/g, '_')}`;
-
-    if (type === 'json') {
-      const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
-      downloadBlob(blob, `${filename}.json`);
-    } else if (type === 'csv') {
-      const csv = sessionData.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      downloadBlob(blob, `${filename}_gear.csv`);
-    } else if (type === 'pdf') {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(14);
-  doc.text(`ChorusPrint Session`, 10, 10);
-  doc.setFontSize(11);
-  doc.text(`Role: ${sessionData.role}`, 10, 20);
-  doc.text(`Phase: ${sessionData.phase}`, 10, 28);
-
-  doc.text(`\nGear List:`, 10, 40);
-  sessionData.gear.forEach((g, i) => {
-    doc.text(`- ${g.item} (x${g.qty}) — ${g.notes}`, 10, 48 + i * 8);
-  });
-
-  const notesStart = 60 + sessionData.gear.length * 8;
-  doc.text(`\nNotes:\n${sessionData.notes}`, 10, notesStart);
-
-  const checklistStart = notesStart + 20;
-  doc.text(`\nChecklist:`, 10, checklistStart);
-  sessionData.checklist.forEach((c, i) => {
-    const status = c.checked ? "[x]" : "[ ]";
-    doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
-  });
-
-  doc.save(`chorusprint_${sessionData.role}_${sessionData.phase}.pdf`);
-}
-    } else if (type === 'docx') {
-      alert("Word export coming soon — placeholder only.");
-    } else if (type === 'xlsx') {
-      alert("Excel export coming soon — placeholder only.");
-    } else if (type === 'zip') {
-      alert("ZIP export coming soon — placeholder only.");
-    }
-  }
-
-  function downloadBlob(blob, filename) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-  }
-
-  function importSession(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        sessionData = data;
-        document.getElementById('role').value = data.role;
-        document.getElementById('phase').value = data.phase;
-        document.getElementById('notes').value = data.notes || '';
-        document.getElementById('sessionUI').style.display = 'block';
-        renderGearList();
-        const checklistInputs = document.querySelectorAll('#checklist input');
-        data.checklist?.forEach((item, i) => {
-          if (checklistInputs[i]) checklistInputs[i].checked = item.checked;
-        });
-      } catch (err) {
-        alert("Invalid session file.");
-      }
-    };
-    reader.readAsText(file);
-  }
-<script>
-  window.exportAs = function(type) {
-    sessionData.notes = document.getElementById('notes').value;
-    sessionData.checklist = Array.from(document.querySelectorAll('#checklist input')).map(c => ({
-      label: c.parentElement.textContent.trim(),
-      checked: c.checked
-    }));
-
-    const filename = `chorusprint_${sessionData.role.replace(/\s+/g, '_')}_${sessionData.phase.replace(/\s+/g, '_')}`;
-
-    if (type === 'json') {
-      const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
-      downloadBlob(blob, `${filename}.json`);
-    } else if (type === 'csv') {
-      const csv = sessionData.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      downloadBlob(blob, `${filename}_gear.csv`);
-    } else if (type === 'pdf') {
+  <script>
+    async function exportAs(type) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
+
+      const role = document.getElementById('role').value;
+      const phase = document.getElementById('phase').value;
+      const notes = document.getElementById('notes').value;
 
       doc.setFontSize(14);
       doc.text(`ChorusPrint Session`, 10, 10);
       doc.setFontSize(11);
-      doc.text(`Role: ${sessionData.role}`, 10, 20);
-      doc.text(`Phase: ${sessionData.phase}`, 10, 28);
+      doc.text(`Role: ${role}`, 10, 20);
+      doc.text(`Phase: ${phase}`, 10, 28);
+      doc.text(`Notes:`, 10, 40);
+      doc.text(notes, 10, 48);
 
-      doc.text(`\nGear List:`, 10, 40);
-      sessionData.gear.forEach((g, i) => {
-        doc.text(`- ${g.item} (x${g.qty}) — ${g.notes}`, 10, 48 + i * 8);
-      });
-
-      const notesStart = 60 + sessionData.gear.length * 8;
-      doc.text(`\nNotes:\n${sessionData.notes}`, 10, notesStart);
-
-      const checklistStart = notesStart + 20;
-      doc.text(`\nChecklist:`, 10, checklistStart);
-      sessionData.checklist.forEach((c, i) => {
-        const status = c.checked ? "[x]" : "[ ]";
-        doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
-      });
-
-      doc.save(`${filename}.pdf`);
+      doc.save(`chorusprint_${role}_${phase}.pdf`);
     }
-  };
-
-  function downloadBlob(blob, filename) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-  }
-<script>
-  window.exportAs = function(type) {
-    // your export logic here
-  };
-</script>
+  </script>
 
 </body>
 </html>
