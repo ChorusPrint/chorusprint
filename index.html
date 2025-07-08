@@ -11,14 +11,19 @@
   <style>
     body {
       font-family: system-ui, sans-serif;
-      background: #f4f4f4;
+      background: #f9f9f9;
       color: #222;
       padding: 2rem;
       max-width: 900px;
       margin: auto;
     }
+    header, footer {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
     h1 {
-      margin-bottom: 1rem;
+      margin: 0;
+      font-size: 2rem;
     }
     label {
       display: block;
@@ -34,7 +39,7 @@
       font-size: 1rem;
     }
     textarea {
-      height: 100px;
+      height: 10rem;
     }
     .gear-row {
       display: flex;
@@ -54,9 +59,11 @@
     }
     .export-buttons {
       margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
     .export-buttons button {
-      margin-right: 0.5rem;
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
       border: none;
@@ -80,7 +87,10 @@
 </head>
 <body>
 
-  <h1>🎚 ChorusPrint</h1>
+  <header>
+    <h1>🎚 ChorusPrint</h1>
+    <p>Modular session builder for live audio crews</p>
+  </header>
 
   <label for="role">Role:</label>
   <input type="text" id="role" value="FOH Engineer" />
@@ -112,7 +122,14 @@
     <button id="export-pdf">📄 Export PDF</button>
     <button id="export-json">🧠 Export JSON</button>
     <button id="export-csv">📁 Export CSV</button>
+    <button id="export-docx">📝 Export DOCX</button>
+    <button id="export-xlsx">📊 Export XLSX</button>
+    <button id="export-zip">🗂 Export ZIP</button>
   </div>
+
+  <footer>
+    <p>ChorusPrint v1.0 — Built for live audio engineers</p>
+  </footer>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -199,6 +216,13 @@
         const blob = new Blob([csv], { type: 'text/csv' });
         const filename = `chorusprint_${data.role}_${data.phase}_gear.csv`.replace(/\s+/g, '_');
         downloadBlob(blob, filename);
+      });
+
+      // Placeholder buttons
+      ['docx', 'xlsx', 'zip'].forEach(type => {
+        document.getElementById(`export-${type}`).addEventListener('click', () => {
+          alert(`${type.toUpperCase()} export coming soon.`);
+        });
       });
     });
   </script>
