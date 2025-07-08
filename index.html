@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ChorusPrint</title>
 
-  <!-- jsPDF for PDF export -->
+  <!-- Export libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     body {
@@ -53,7 +55,9 @@
       margin-top: 1rem;
     }
     .checklist label {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       margin: 0.25rem 0;
       font-weight: normal;
     }
@@ -83,6 +87,15 @@
     #add-gear:hover {
       background: #222;
     }
+    .feedback {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .feedback a {
+      color: #007acc;
+      text-decoration: none;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -93,10 +106,23 @@
   </header>
 
   <label for="role">Role:</label>
-  <input type="text" id="role" value="FOH Engineer" />
+  <select id="role">
+    <option>FOH Engineer</option>
+    <option>Monitor Engineer</option>
+    <option>Systems Tech</option>
+    <option>Stage Manager</option>
+    <option>Patch Tech</option>
+    <option>Other</option>
+  </select>
 
   <label for="phase">Phase:</label>
-  <input type="text" id="phase" value="Show Day" />
+  <select id="phase">
+    <option>Load In</option>
+    <option>Soundcheck</option>
+    <option>Show Day</option>
+    <option>Strike</option>
+    <option>Other</option>
+  </select>
 
   <label>Gear List:</label>
   <div id="gear-list">
@@ -119,12 +145,16 @@
   </div>
 
   <div class="export-buttons">
-    <button id="export-pdf">📄 Export PDF</button>
-    <button id="export-json">🧠 Export JSON</button>
-    <button id="export-csv">📁 Export CSV</button>
-    <button id="export-docx">📝 Export DOCX</button>
-    <button id="export-xlsx">📊 Export XLSX</button>
-    <button id="export-zip">🗂 Export ZIP</button>
+    <button id="export-pdf">📄 PDF</button>
+    <button id="export-json">🧠 JSON</button>
+    <button id="export-csv">📁 CSV</button>
+    <button id="export-docx">📝 DOCX</button>
+    <button id="export-xlsx">📊 XLSX</button>
+    <button id="export-zip">🗂 ZIP</button>
+  </div>
+
+  <div class="feedback">
+    <p>Have feedback? <a href="mailto:feedback.chorusprint@proton.me">Send it here</a></p>
   </div>
 
   <footer>
@@ -199,33 +229,4 @@
           doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
         });
 
-        const filename = `chorusprint_${data.role}_${data.phase}.pdf`.replace(/\s+/g, '_');
-        doc.save(filename);
-      });
-
-      document.getElementById('export-json').addEventListener('click', () => {
-        const data = collectSessionData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const filename = `chorusprint_${data.role}_${data.phase}.json`.replace(/\s+/g, '_');
-        downloadBlob(blob, filename);
-      });
-
-      document.getElementById('export-csv').addEventListener('click', () => {
-        const data = collectSessionData();
-        const csv = data.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const filename = `chorusprint_${data.role}_${data.phase}_gear.csv`.replace(/\s+/g, '_');
-        downloadBlob(blob, filename);
-      });
-
-      // Placeholder buttons
-      ['docx', 'xlsx', 'zip'].forEach(type => {
-        document.getElementById(`export-${type}`).addEventListener('click', () => {
-          alert(`${type.toUpperCase()} export coming soon.`);
-        });
-      });
-    });
-  </script>
-
-</body>
-</html>
+        const filename = `chorusprint
