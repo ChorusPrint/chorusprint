@@ -10,9 +10,11 @@
 
   <style>
     body {
-      font-family: sans-serif;
+      font-family: system-ui, sans-serif;
+      background: #f4f4f4;
+      color: #222;
       padding: 2rem;
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
     }
     h1 {
@@ -21,11 +23,15 @@
     label {
       display: block;
       margin-top: 1rem;
+      font-weight: bold;
     }
     input, select, textarea {
       width: 100%;
       padding: 0.5rem;
       margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
     }
     textarea {
       height: 100px;
@@ -44,27 +50,43 @@
     .checklist label {
       display: block;
       margin: 0.25rem 0;
+      font-weight: normal;
     }
     .export-buttons {
       margin-top: 2rem;
     }
     .export-buttons button {
       margin-right: 0.5rem;
-      padding: 0.5rem 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #007acc;
+      color: white;
+      cursor: pointer;
+    }
+    .export-buttons button:hover {
+      background: #005fa3;
+    }
+    #add-gear {
+      margin-top: 0.5rem;
+      background: #444;
+      color: white;
+    }
+    #add-gear:hover {
+      background: #222;
     }
   </style>
 </head>
 <body>
 
-  <h1>ChorusPrint</h1>
+  <h1>🎚 ChorusPrint</h1>
 
-  <label>Role:
-    <input type="text" id="role" value="FOH Engineer" />
-  </label>
+  <label for="role">Role:</label>
+  <input type="text" id="role" value="FOH Engineer" />
 
-  <label>Phase:
-    <input type="text" id="phase" value="Show Day" />
-  </label>
+  <label for="phase">Phase:</label>
+  <input type="text" id="phase" value="Show Day" />
 
   <label>Gear List:</label>
   <div id="gear-list">
@@ -76,7 +98,7 @@
   </div>
   <button id="add-gear">➕ Add Gear</button>
 
-  <label>Notes:</label>
+  <label for="notes">Notes:</label>
   <textarea id="notes">Check console, verify patch, run playback.</textarea>
 
   <div class="checklist">
