@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChorusPrint Export Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChorusPrint</title>
 
   <!-- jsPDF for PDF export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,53 +12,173 @@
     body {
       font-family: sans-serif;
       padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
     }
     textarea {
-      width: 100%;
       height: 100px;
     }
-    button {
+    .gear-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .gear-row input {
+      flex: 1;
+    }
+    .checklist {
       margin-top: 1rem;
+    }
+    .checklist label {
+      display: block;
+      margin: 0.25rem 0;
+    }
+    .export-buttons {
+      margin-top: 2rem;
+    }
+    .export-buttons button {
+      margin-right: 0.5rem;
       padding: 0.5rem 1rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>ChorusPrint Export Test</h1>
+  <h1>ChorusPrint</h1>
 
   <label>Role:
     <input type="text" id="role" value="FOH Engineer" />
-  </label><br><br>
+  </label>
 
   <label>Phase:
     <input type="text" id="phase" value="Show Day" />
-  </label><br><br>
+  </label>
 
-  <label>Notes:</label><br>
-  <textarea id="notes">Check console, verify patch, run playback.</textarea><br>
+  <label>Gear List:</label>
+  <div id="gear-list">
+    <div class="gear-row">
+      <input type="text" placeholder="Item" class="gear-item" />
+      <input type="number" placeholder="Qty" class="gear-qty" />
+      <input type="text" placeholder="Notes" class="gear-notes" />
+    </div>
+  </div>
+  <button id="add-gear">➕ Add Gear</button>
 
-  <button onclick="exportAs('pdf')">📄 Export PDF</button>
+  <label>Notes:</label>
+  <textarea id="notes">Check console, verify patch, run playback.</textarea>
+
+  <div class="checklist">
+    <label><input type="checkbox" /> Verify console patch</label>
+    <label><input type="checkbox" /> Check PA alignment</label>
+    <label><input type="checkbox" /> Confirm artist mixes</label>
+    <label><input type="checkbox" /> Run playback test</label>
+  </div>
+
+  <div class="export-buttons">
+    <button id="export-pdf">📄 Export PDF</button>
+    <button id="export-json">🧠 Export JSON</button>
+    <button id="export-csv">📁 Export CSV</button>
+  </div>
 
   <script>
-    async function exportAs(type) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+    window.addEventListener('DOMContentLoaded', () => {
+      const gearList = document.getElementById('gear-list');
+      const addGearBtn = document.getElementById('add-gear');
 
-      const role = document.getElementById('role').value;
-      const phase = document.getElementById('phase').value;
-      const notes = document.getElementById('notes').value;
+      addGearBtn.addEventListener('click', () => {
+        const row = document.createElement('div');
+        row.className = 'gear-row';
+        row.innerHTML = `
+          <input type="text" placeholder="Item" class="gear-item" />
+          <input type="number" placeholder="Qty" class="gear-qty" />
+          <input type="text" placeholder="Notes" class="gear-notes" />
+        `;
+        gearList.appendChild(row);
+      });
 
-      doc.setFontSize(14);
-      doc.text(`ChorusPrint Session`, 10, 10);
-      doc.setFontSize(11);
-      doc.text(`Role: ${role}`, 10, 20);
-      doc.text(`Phase: ${phase}`, 10, 28);
-      doc.text(`Notes:`, 10, 40);
-      doc.text(notes, 10, 48);
+      function collectSessionData() {
+        const role = document.getElementById('role').value;
+        const phase = document.getElementById('phase').value;
+        const notes = document.getElementById('notes').value;
 
-      doc.save(`chorusprint_${role}_${phase}.pdf`);
-    }
+        const gear = Array.from(document.querySelectorAll('.gear-row')).map(row => ({
+          item: row.querySelector('.gear-item').value,
+          qty: row.querySelector('.gear-qty').value,
+          notes: row.querySelector('.gear-notes').value
+        }));
+
+        const checklist = Array.from(document.querySelectorAll('.checklist input')).map(c => ({
+          label: c.parentElement.textContent.trim(),
+          checked: c.checked
+        }));
+
+        return { role, phase, notes, gear, checklist };
+      }
+
+      function downloadBlob(blob, filename) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+      }
+
+      document.getElementById('export-pdf').addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const data = collectSessionData();
+
+        doc.setFontSize(14);
+        doc.text(`ChorusPrint Session`, 10, 10);
+        doc.setFontSize(11);
+        doc.text(`Role: ${data.role}`, 10, 20);
+        doc.text(`Phase: ${data.phase}`, 10, 28);
+
+        doc.text(`Gear List:`, 10, 40);
+        data.gear.forEach((g, i) => {
+          doc.text(`- ${g.item} (x${g.qty}) — ${g.notes}`, 10, 48 + i * 8);
+        });
+
+        const notesStart = 60 + data.gear.length * 8;
+        doc.text(`Notes:\n${data.notes}`, 10, notesStart);
+
+        const checklistStart = notesStart + 20;
+        doc.text(`Checklist:`, 10, checklistStart);
+        data.checklist.forEach((c, i) => {
+          const status = c.checked ? "[x]" : "[ ]";
+          doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
+        });
+
+        const filename = `chorusprint_${data.role}_${data.phase}.pdf`.replace(/\s+/g, '_');
+        doc.save(filename);
+      });
+
+      document.getElementById('export-json').addEventListener('click', () => {
+        const data = collectSessionData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const filename = `chorusprint_${data.role}_${data.phase}.json`.replace(/\s+/g, '_');
+        downloadBlob(blob, filename);
+      });
+
+      document.getElementById('export-csv').addEventListener('click', () => {
+        const data = collectSessionData();
+        const csv = data.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const filename = `chorusprint_${data.role}_${data.phase}_gear.csv`.replace(/\s+/g, '_');
+        downloadBlob(blob, filename);
+      });
+    });
   </script>
 
 </body>
