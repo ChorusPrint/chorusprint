@@ -48,7 +48,7 @@
       border-bottom: 1px solid var(--border);
       padding-bottom: 0.5em;
     }
-    label, input, select, textarea, button {
+    label, input, select, textarea,  {
       display: block;
       width: 100%;
       margin-bottom: 0.75em;
@@ -270,7 +270,7 @@
       const csv = sessionData.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
       downloadBlob(blob, `${filename}_gear.csv`);
-    } else if (type === 'pdf') {
+    } if (type === 'pdf') {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
