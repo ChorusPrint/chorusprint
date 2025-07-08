@@ -11,13 +11,28 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
+    :root {
+      --bg: #f9f9f9;
+      --fg: #222;
+      --accent: #007acc;
+      --button-bg: #007acc;
+      --button-hover: #005fa3;
+    }
+    [data-theme="dark"] {
+      --bg: #1e1e1e;
+      --fg: #eee;
+      --accent: #66ccff;
+      --button-bg: #444;
+      --button-hover: #666;
+    }
     body {
       font-family: system-ui, sans-serif;
-      background: #f9f9f9;
-      color: #222;
+      background: var(--bg);
+      color: var(--fg);
       padding: 2rem;
       max-width: 900px;
       margin: auto;
+      transition: background 0.3s, color 0.3s;
     }
     header, footer {
       text-align: center;
@@ -39,6 +54,8 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 1rem;
+      background: white;
+      color: black;
     }
     textarea {
       height: 10rem;
@@ -72,12 +89,12 @@
       font-size: 1rem;
       border: none;
       border-radius: 4px;
-      background: #007acc;
+      background: var(--button-bg);
       color: white;
       cursor: pointer;
     }
     .export-buttons button:hover {
-      background: #005fa3;
+      background: var(--button-hover);
     }
     #add-gear {
       margin-top: 0.5rem;
@@ -92,13 +109,20 @@
       text-align: center;
     }
     .feedback a {
-      color: #007acc;
+      color: var(--accent);
       text-decoration: none;
       font-weight: bold;
     }
+    .theme-toggle {
+      float: right;
+      margin-top: -2rem;
+    }
   </style>
 </head>
-<body>
+<body data-theme="light">
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+  </div>
 
   <header>
     <h1>🎚 ChorusPrint</h1>
@@ -112,6 +136,8 @@
     <option>Systems Tech</option>
     <option>Stage Manager</option>
     <option>Patch Tech</option>
+    <option>RF Tech</option>
+    <option>Playback</option>
     <option>Other</option>
   </select>
 
@@ -121,6 +147,7 @@
     <option>Soundcheck</option>
     <option>Show Day</option>
     <option>Strike</option>
+    <option>Rehearsal</option>
     <option>Other</option>
   </select>
 
@@ -162,6 +189,12 @@
   </footer>
 
   <script>
+    function toggleTheme() {
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       const gearList = document.getElementById('gear-list');
       const addGearBtn = document.getElementById('add-gear');
@@ -229,4 +262,31 @@
           doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
         });
 
-        const filename = `chorusprint
+        const filename = `chorusprint_${data.role}_${data.phase}.pdf`.replace(/\s+/g, '_');
+        doc.save(filename);
+      });
+
+      document.getElementById('export-json').addEventListener('click', () => {
+        const data = collectSessionData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const filename = `chorusprint_${data.role}_${data.phase}.json`.replace(/\s+/g, '_');
+        downloadBlob(blob, filename);
+      });
+
+      document.getElementById('export-csv').addEventListener('click', () => {
+        const data = collectSessionData();
+        const csv = data.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const filename = `chorusprint_${data.role}_${data.phase}_gear.csv`.replace(/\s+/g, '_');
+        downloadBlob(blob, filename);
+      });
+
+      ['docx', 'xlsx', 'zip'].forEach(type => {
+        document.getElementById(`export-${type}`).addEventListener('click', () => {
+          alert(`${type.toUpperCase()} export coming soon.`);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
