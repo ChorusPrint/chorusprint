@@ -323,6 +323,58 @@
     };
     reader.readAsText(file);
   }
+<script>
+  window.exportAs = function(type) {
+    sessionData.notes = document.getElementById('notes').value;
+    sessionData.checklist = Array.from(document.querySelectorAll('#checklist input')).map(c => ({
+      label: c.parentElement.textContent.trim(),
+      checked: c.checked
+    }));
+
+    const filename = `chorusprint_${sessionData.role.replace(/\s+/g, '_')}_${sessionData.phase.replace(/\s+/g, '_')}`;
+
+    if (type === 'json') {
+      const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
+      downloadBlob(blob, `${filename}.json`);
+    } else if (type === 'csv') {
+      const csv = sessionData.gear.map(g => `${g.item},${g.qty},${g.notes}`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      downloadBlob(blob, `${filename}_gear.csv`);
+    } else if (type === 'pdf') {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text(`ChorusPrint Session`, 10, 10);
+      doc.setFontSize(11);
+      doc.text(`Role: ${sessionData.role}`, 10, 20);
+      doc.text(`Phase: ${sessionData.phase}`, 10, 28);
+
+      doc.text(`\nGear List:`, 10, 40);
+      sessionData.gear.forEach((g, i) => {
+        doc.text(`- ${g.item} (x${g.qty}) — ${g.notes}`, 10, 48 + i * 8);
+      });
+
+      const notesStart = 60 + sessionData.gear.length * 8;
+      doc.text(`\nNotes:\n${sessionData.notes}`, 10, notesStart);
+
+      const checklistStart = notesStart + 20;
+      doc.text(`\nChecklist:`, 10, checklistStart);
+      sessionData.checklist.forEach((c, i) => {
+        const status = c.checked ? "[x]" : "[ ]";
+        doc.text(`${status} ${c.label}`, 10, checklistStart + 10 + i * 8);
+      });
+
+      doc.save(`${filename}.pdf`);
+    }
+  };
+
+  function downloadBlob(blob, filename) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
 </script>
 </body>
 </html>
